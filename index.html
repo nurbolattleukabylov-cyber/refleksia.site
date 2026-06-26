@@ -2,80 +2,61 @@
 <html lang="kk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Робототехника және STEM рефлексиясы</title>
+    <title>Рефлексия парақшасы</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .wrapper { display: flex; flex-wrap: wrap; gap: 20px; width: 100%; max-width: 900px; margin-top: 50px; }
-        .left-side, .right-side { background: #ffffff; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); flex: 1; min-width: 300px; }
-        input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; background: #764ba2; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
-        button:hover { background: #5a377d; }
-        
-        /* Тазарту батырмасының стилі */
-        .clear-btn { background: #ff4757; }
-        .clear-btn:hover { background: #ff6b81; }
-
-        .comment { background: #f4f4f9; padding: 12px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid #764ba2; }
-        .right-side { overflow-y: auto; max-height: 500px; }
+        body { font-family: sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #333; text-align: center; }
+        textarea, input { width: 100%; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; box-sizing: border-box; }
+        button { background-color: #5c67f2; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; width: 100%; }
+        .post { background: #f9f9f9; padding: 15px; margin-top: 15px; border-left: 5px solid #5c67f2; border-radius: 4px; }
+        .author { font-weight: bold; color: #5c67f2; }
     </style>
 </head>
 <body>
 
-    <div class="wrapper">
-        <div class="left-side">
-            <h1>Робототехника және STEM</h1>
-            <input type="text" id="name" placeholder="Аты-жөніңіз">
-            <textarea id="feedback" rows="4" placeholder="Өз ойыңыз..."></textarea>
-            <button onclick="addFeedback()">Жіберу</button>
-        </div>
+<div class="container">
+    <h2>Рефлексия</h2>
+    <input type="text" id="nameInput" placeholder="Аты-жөніңіз">
+    <textarea id="commentInput" placeholder="Ойыңызды жазыңыз..."></textarea>
+    <button onclick="saveComment()">Сақтау</button>
 
-        <div class="right-side">
-            <h2>Пікірлер</h2>
-            <button class="clear-btn" onclick="clearAll()">Барлық пікірлерді өшіру</button>
-            <div id="displayArea"></div>
-        </div>
-    </div>
+    <div id="commentsSection"></div>
+</div>
 
-    <script>
-        window.onload = function() {
-            let comments = JSON.parse(localStorage.getItem('myComments')) || [];
-            comments.forEach(c => renderComment(c.name, c.text));
-        };
+<script>
+    // Бет жүктелгенде сақталған пікірлерді шығару
+    window.onload = loadComments;
 
-        function addFeedback() {
-            let name = document.getElementById('name').value;
-            let text = document.getElementById('feedback').value;
+    function saveComment() {
+        let name = document.getElementById('nameInput').value;
+        let comment = document.getElementById('commentInput').value;
+        
+        if (name && comment) {
+            let newComment = { name: name, text: comment };
+            let comments = JSON.parse(localStorage.getItem('myComments') || '[]');
+            comments.push(newComment);
+            localStorage.setItem('myComments', JSON.stringify(comments));
             
-            if(name && text) {
-                let comments = JSON.parse(localStorage.getItem('myComments')) || [];
-                comments.push({name, text});
-                localStorage.setItem('myComments', JSON.stringify(comments));
-
-                renderComment(name, text);
-                
-                document.getElementById('name').value = '';
-                document.getElementById('feedback').value = '';
-            } else {
-                alert("Аты-жөніңізді және пікіріңізді жазыңыз!");
-            }
+            document.getElementById('commentInput').value = '';
+            document.getElementById('nameInput').value = '';
+            loadComments(); // Тізімді жаңарту
         }
+    }
 
-        // Барлық пікірді тазарту функциясы
-        function clearAll() {
-            if(confirm("Барлық пікірлерді өшіргіңіз келетініне сенімдісіз бе?")) {
-                localStorage.removeItem('myComments');
-                document.getElementById('displayArea').innerHTML = '';
-            }
-        }
-
-        function renderComment(name, text) {
-            let display = document.getElementById('displayArea');
+    function loadComments() {
+        let section = document.getElementById('commentsSection');
+        section.innerHTML = '';
+        let comments = JSON.parse(localStorage.getItem('myComments') || '[]');
+        
+        comments.reverse().forEach(c => {
             let div = document.createElement('div');
-            div.className = 'comment';
-            div.innerHTML = `<strong>${name}</strong><p>${text}</p>`;
-            display.prepend(div);
-        }
-    </script>
+            div.className = 'post';
+            div.innerHTML = `<div class="author">${c.name}</div><div>${c.text}</div>`;
+            section.appendChild(div);
+        });
+    }
+</script>
+
 </body>
 </html>
